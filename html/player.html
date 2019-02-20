@@ -87,7 +87,7 @@
 		</div>
 		<div class="row col-sm-3" id="timer" style="display:none"></div>
 		<div class="row col-sm-10" id="skip_btn"><a  onclick="colorPick()">Skip</a></div>
-		<div class="row" id="pick_instruction" style="display:none"></div>
+		<div class="row" id="pick_instruction" style="display:none"><h2>Select five colors by dragging and dropping</h2></div>
 		<div class="row col-sm-2" id="player1_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;height:90%" ondrop="drop1(event)" ondragover="allowDrop(event)">
 			<p style="color:black" id="player1_selection_text"></p>
 		</div>
@@ -223,6 +223,7 @@
 			document.getElementById("instruction").innerText  = player1 + " please start completing these statements: ";
 			stopTimer(document.getElementById("timer"));
 			document.getElementById("statement_container").style.display = "none";
+			document.getElementById("pick_instruction").style.display = "block";
 			document.getElementById("color_btns").style.display = "block";
 
 			document.getElementById("skip_btn").style.display = "none";
@@ -290,6 +291,7 @@
 		}
 		
 		function questions(){
+			document.getElementById("pick_instruction").style.display = "none";
 			document.getElementById("player1_selection").style.display = "none";
 			document.getElementById("player2_selection").style.display = "none";
 			document.getElementById("color_btns").style.display = "none";
