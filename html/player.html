@@ -126,16 +126,41 @@
 		<div class="row col-sm-2" id="player2_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;height:90%" ondrop="drop2(event)" ondragover="allowDrop(event)">
 			<p style="color:black" id="player2_selection_text"></p>
 		</div>
+		
+		<div id="question_container" class="row" style="display:none">
+			<h2 id="current_question" class="row">CURRENT QUESTION</h2>
+			<div id="ans_buttons">
+				<a id="yes" onclick="ans_clicked(1)" class="link-round color-green whiteoutline box-shadow text-center "><h3>Yes</h3></a>
+				<a id="no" onclick="ans_clicked(0)" class="link-round color-red whiteoutline box-shadow text-center "><h3>No</h3></a>
+			</div>
+		</div>
 	</div>
 	
 	
 	<script>
 		//var session = new QiSession();
-		var timer_;
-		var statement_timer = 0;
-		var player1, player2;
-		var num_player1_colors = 0;
-		var num_player2_colors = 0;
+		var timer_;					//Timer variable in the presentation phase
+		var statement_timer = 0;	
+		var player1, player2;		//Players' names
+		var player1_colors = [];	//Player1 picked colors
+		var player2_colors = [];	//Player2 picked colors
+		var _dragged = "";			//global variable for dragged item
+		var player_turn = 1;		
+		var player1_points = 0;
+		var player2_points = 0;
+		
+		var question_refs = {	
+								"red":"What was my occupation?",
+								"green":"Which place would I like to travel to?",
+								"blue":"What is my educational background?",
+								"orange":"What do I enjoy the most in my job?",
+								"purple":"What is the reason for my attendance in this event?",
+								"pink":"What is my research field?",
+								"yellow":"Where do I work?",
+								"brown":"What is my hobby/hobbies?",
+								"olive":"Where am I from?",
+								"lime":"What is/was the highlight of my day?"
+							}
 		
 		function start_clicked(){
 			player1 = document.getElementById("player1").value;
@@ -149,12 +174,8 @@
 				console.log("Invalid Player2 name inserted....");
 				return;
 			}
-			
-			game();
-		}
-		
-		function game(){
-			display_instructions()
+
+			display_instructions();
 		}
 		
 		function display_instructions(){
@@ -199,14 +220,14 @@
 		}
 		
 		function colorPick(){
+			document.getElementById("instruction").innerText  = player1 + " please start completing these statements: ";
 			stopTimer(document.getElementById("timer"));
 			document.getElementById("statement_container").style.display = "none";
 			document.getElementById("color_btns").style.display = "block";
-			//document.getElementById("pick_instruction").style.display = "block";
-			//document.getElementById("pick_instruction").innerText = player1 + " select five color of your choice";
+
 			document.getElementById("skip_btn").style.display = "none";
-			document.getElementById("player1_selection").style = "display:block";
-			document.getElementById("player2_selection").style = "display:block";
+			document.getElementById("player1_selection").style = "display:block;border-style:solid;border-color:black;border-width:medium;height:600px";
+			document.getElementById("player2_selection").style = "display:block;border-style:solid;border-color:black;border-width:medium;height:600px";
 			document.getElementById("player1_selection_text").innerText = player1;
 			document.getElementById("player2_selection_text").innerText = player2;
 		}
@@ -222,29 +243,83 @@
 			ev.preventDefault();
 		}
 		function drag(ev) {
+			_dragged = ev.target.id;
 			ev.dataTransfer.setData("text", ev.target.id);
+			console.log("dragging", ev);
 		}
 		function drop1(ev) {
-			if(num_player1_colors == 5){
-				return -1;
-			}
 			ev.preventDefault();
-			var data = ev.dataTransfer.getData("text");
-			ev.target.appendChild(document.getElementById(data));
-			++num_player1_colors;
-			if(num_player1_colors == 5){
+			if(player1_colors.length == 5){
+				console.log(num_player1_colors, "should not be able to drop here");
 				document.getElementById("player1_selection").ondragoover = function(){return;};
+				document.getElementById("player1_selection").ondrop = function(){return false;};
+			}
+			else{
+				player1_colors.push(_dragged);
+				stuff(ev);
+				console.log("Dropping to player 1");
 			}
 		}
 		function drop2(ev) {
 			ev.preventDefault();
+			if(player2_colors.length == 5){
+				console.log(num_player2_colors, "should not be able to drop here");
+				document.getElementById("player2_selection").ondragoover = function(){return;};
+				document.getElementById("player2_selection").ondrop = function(){return false;};
+			}
+			else{
+				player2_colors.push(_dragged);
+				stuff(ev);
+				console.log("Dropping to player 2");
+			}	
+		}
+		
+		function stuff(ev){
+			console.log("Player 1 colors are now:", player1_colors);
+			console.log("Player 2 colors are now:", player2_colors);
 			var data = ev.dataTransfer.getData("text");
 			ev.target.appendChild(document.getElementById(data));
-			++num_player2_colors;
-			if(num_player2_colors == 5){
-				document.getElementById("player2_selection").ondragoover = function(){return;};
+			ev.target.setAttribute('draggable',false);
+			if(player1_colors.length == 5 && player2_colors.length == 5){
+				//Proceed to the questions part
+				//TODO SEND SINGAL FOR PERPPER TO START EXPLAINING THE MEANING OF COLORS
+				//"Each color is associated with a question about the other player, so let's begin the game."
+				
+				questions();
 			}
 		}
+		
+		function questions(){
+			document.getElementById("player1_selection").style.display = "none";
+			document.getElementById("player2_selection").style.display = "none";
+			document.getElementById("color_btns").style.display = "none";
+			document.getElementById("question_container").style.display = "block";
+			document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
+		}
+		
+		function ans_clicked(ans){
+			if(player_turn == 1){
+				player2_points += ans;
+				player_turn = 2;
+				//Raise signal for Pepper to say correct/false
+				player1_colors.shift();
+				document.getElementById("current_question").innerText = question_refs[player2_colors[0]];
+			}
+			else if(player_turn == 2){
+				player1_points += ans;
+				player_turn = 1
+				//Raise signal for Pepper to say correct/false
+				player2_colors.shift();
+				document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
+			}
+			if(player2_colors.length == 0){
+				console.log("END GAME");
+				document.getElementById("current_question").innerText = player1 + " got " + player1_points + " points!\n" + player2 + " got " + player2_points + " points!\n\nEnjoy the event!";
+				document.getElementById("ans_buttons").style.display = "none";
+			}
+			
+		}
+		
 	</script>
 </body>
 </html>
