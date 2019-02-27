@@ -75,12 +75,12 @@
 					<li>My occupation is...</li>
 					<li>I work at...</li>
 					<li>I am from...</li>
-					<li>My research field/interest is...</li>
+					<li>My favorite food is...</li>
 					<li>What I enjoy most about my job is...</li>
 					<li>My hobby is...</li>
-					<li>The highlight of the day was...</li>
+					<li>If I win a lottery, the first thing I do is...</li>
 					<li>My educational background is...</li>
-					<li>I am here today to...</li>
+					<li>My worst fear in life is...</li>
 					<li>I like to travel to...</li>
 				</ul>
 			</div>
@@ -138,7 +138,12 @@
 	
 	
 	<script>
-		//var session = new QiSession();
+		try{
+			var session = new QiSession();
+		}
+		catch(err){
+			console.log("Not using pepper. No QiSession stuff");
+		}
 		var timer_;					//Timer variable in the presentation phase
 		var statement_timer = 0;	
 		var player1, player2;		//Players' names
@@ -150,16 +155,16 @@
 		var player2_points = 0;
 		
 		var question_refs = {	
-								"red":"What was my occupation?",
-								"green":"Which place would I like to travel to?",
-								"blue":"What is my educational background?",
-								"orange":"What do I enjoy the most in my job?",
-								"purple":"What is the reason for my attendance in this event?",
-								"pink":"What is my research field?",
-								"yellow":"Where do I work?",
-								"brown":"What is my hobby/hobbies?",
-								"olive":"Where am I from?",
-								"lime":"What is/was the highlight of my day?"
+								"red":"What is the other players occupation?",
+								"green":"Which plave the other player like to travel?",
+								"blue":"What is the other player's educational background",
+								"orange":"What does the other player enjoy the most in his/her job?",
+								"purple":"What is the other player's worst fear in life?",
+								"pink":"What is the favorite food of the other player?",
+								"yellow":"Where does the other player work?",
+								"brown":"What is the other player's hobby?",
+								"olive":"Where is the other player from?",
+								"lime":"What does the other player first do if they win a lottery?"
 							}
 		
 		function start_clicked(){
@@ -183,6 +188,7 @@
 			document.getElementById("statement_container").style = "display:block";
 			document.getElementById("instruction").innerText  = player1 + " please start completing these statements: ";
 			//PEPPER SPEAKS AND AFTER HE HAS COMPLETED HIS STATEMENT SENDS A SIGNAL THAT STARTS THE TIMER
+			say(str(player1) + " please start completing these statements: ");
 			startTimer(10, document.getElementById("timer"));
 		}
 		
@@ -193,8 +199,10 @@
 			timer_ = setInterval(function () {
 				++statement_timer;
 				if(statement_timer == 11){
+					say("Time is up. Next, " + player2 + " please start completing these statements: ");
 					timer = duration, minutes, seconds;
 					document.getElementById("instruction").innerText  = player2 + " please start completing these statements: ";
+					say(str(player2) + " please start completing these statements: ");
 				}
 				if(statement_timer == 21){
 					colorPick();
@@ -220,7 +228,7 @@
 		}
 		
 		function colorPick(){
-			document.getElementById("instruction").innerText  = player1 + " please start completing these statements: ";
+			say("Next you are to pick 5 of the colors each. Select them by dragging and dropping");
 			stopTimer(document.getElementById("timer"));
 			document.getElementById("statement_container").style.display = "none";
 			document.getElementById("pick_instruction").style.display = "block";
@@ -256,6 +264,7 @@
 				document.getElementById("player1_selection").ondrop = function(){return false;};
 			}
 			else{
+				say(_dragged);
 				player1_colors.push(_dragged);
 				stuff(ev);
 				console.log("Dropping to player 1");
@@ -269,6 +278,7 @@
 				document.getElementById("player2_selection").ondrop = function(){return false;};
 			}
 			else{
+				say(_dragged);
 				player2_colors.push(_dragged);
 				stuff(ev);
 				console.log("Dropping to player 2");
@@ -284,7 +294,7 @@
 			if(player1_colors.length == 5 && player2_colors.length == 5){
 				//Proceed to the questions part
 				//TODO SEND SINGAL FOR PERPPER TO START EXPLAINING THE MEANING OF COLORS
-				//"Each color is associated with a question about the other player, so let's begin the game."
+				say("Each color is associated with a question about the other player, so let's begin the game.");
 				
 				questions();
 			}
@@ -297,22 +307,24 @@
 			document.getElementById("color_btns").style.display = "none";
 			document.getElementById("question_container").style.display = "block";
 			document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
+			say(player1_colors[0] + " " + question_refs[player1_colors[0]]);
 		}
 		
 		function ans_clicked(ans){
+			say_ans(ans);
 			if(player_turn == 1){
 				player2_points += ans;
 				player_turn = 2;
-				//Raise signal for Pepper to say correct/false
 				player1_colors.shift();
 				document.getElementById("current_question").innerText = question_refs[player2_colors[0]];
+				say(player2_colors[0] + " " + question_refs[player2_colors[0]]);
 			}
 			else if(player_turn == 2){
 				player1_points += ans;
 				player_turn = 1
-				//Raise signal for Pepper to say correct/false
 				player2_colors.shift();
 				document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
+				say(player1_colors[0] + " " + question_refs[player1_colors[0]]);
 			}
 			if(player2_colors.length == 0){
 				console.log("END GAME");
@@ -321,6 +333,25 @@
 			}
 			
 		}
+		
+		function say_ans(ans){
+			if(ans == 1){
+				say("Correct");
+			}
+			else if(ans == 0){
+				say("Wrong");
+			}
+		}
+		
+		function say(text){
+			try{
+				session.service('ALMemory').done(function(ALMemory) {
+				ALMemory.raiseEvent("colorgame/say", text);
+			catch(err){
+				console.log("Not using pepper. No QiSession stuff");
+				console.log("Attempting to say:", text);
+			}
+		});
 		
 	</script>
 </body>
