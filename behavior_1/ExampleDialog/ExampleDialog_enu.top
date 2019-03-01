@@ -13,11 +13,4 @@ concept:(bye) [bye goodbye "bye bye" "tata" "see you" adios cheerio "so long" fa
 
 concept:(intro) ["Let's play a color game"]
 
-u:(e:onStart) ^gotoReactivate(start)
-#u:(e:onStart) $html="colorgame.html" ~hello \pau=500\ Let's play a color game. \pau=1000\ Press Start when you are ready.
- #   u1:([start go begin "lets go"]) ^gotoReactivate(start)
-
-u:(e:colorgame/start_clicked) ^gotoReactivate(start)
-
-proposal: %start Ok, let's start. $html="stage1.html" $pause=1
-#u:(_[blue green yellow red orange pink]) $1 $event=$1
+u:(e:onStart) $html="colorgame.html" ~hello \pau=500\ ~intro \pau=1000\ Press Start when you are ready.

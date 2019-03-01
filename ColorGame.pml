@@ -33,9 +33,11 @@
         <File name="fa-solid-900" src="html/site/web-fonts-with-css/webfonts/fa-solid-900.ttf" />
         <File name="fa-solid-900" src="html/site/web-fonts-with-css/webfonts/fa-solid-900.woff" />
         <File name="fa-solid-900" src="html/site/web-fonts-with-css/webfonts/fa-solid-900.woff2" />
-        <File name="stage1" src="html/stage1.html" />
-        <File name="endgame" src="html/endgame.html" />
         <File name="typed.min" src="html/site/js/typed.min.js" />
+        <File name="endgame" src="archive/endgame.html" />
+        <File name="stage1" src="archive/stage1.html" />
+        <File name="player" src="html/player.html" />
+        <File name="DragDropTouch" src="html/site/js/DragDropTouch.js" />
     </Resources>
     <Topics>
         <Topic name="ExampleDialog_enu" src="behavior_1/ExampleDialog/ExampleDialog_enu.top" topicName="ExampleDialog" language="en_US" nuance="enu" />

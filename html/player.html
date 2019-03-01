@@ -30,6 +30,8 @@
 		<script src="https://code.jquery.com/jquery-1.11.1.min.js"</script>
 		<script src="site/js/bootstrap.min.js"></script>
 		<link href="site/web-fonts-with-css/css/fontawesome-all.min.css" rel="stylesheet">
+		<script src="jquery.ui.touch-punch.min.js"></script>
+		<script src="site/js/DragDropTouch.js"></script>
 		
 		<style>
 			.rainbow {
@@ -70,7 +72,8 @@
 		</div>
 		<div class="row" id="statement_container" style="display:none">
 			<h2 id="instruction"></h2>
-			<div class="row col-sm-5">
+			<div style="width:300px"></div>
+			<div class="row" style="align:center">
 				<ul id="statements" style="text-align:left">
 					<li>My occupation is...</li>
 					<li>I work at...</li>
@@ -83,12 +86,14 @@
 					<li>My worst fear in life is...</li>
 					<li>I like to travel to...</li>
 				</ul>
+				<div class="col-sm-8" id="timer" style="display:none"></div>
 			</div>
+			
 		</div>
-		<div class="row col-sm-3" id="timer" style="display:none"></div>
-		<div class="row col-sm-10" id="skip_btn"><a  onclick="colorPick()">Skip</a></div>
+		
+		<div class="row col-sm-10" id="debug"></div>
 		<div class="row" id="pick_instruction" style="display:none"><h2>Select five colors by dragging and dropping</h2></div>
-		<div class="row col-sm-2" id="player1_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;height:90%" ondrop="drop1(event)" ondragover="allowDrop(event)">
+		<div class="row col-sm-2" id="player1_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;width:20%;height:90%" ondrop="drop1(event)" ondragover="allowDrop(event)">
 			<p style="color:black" id="player1_selection_text"></p>
 		</div>
 		<div class="row col-sm-8" id="color_btns" style="display:none">
@@ -123,15 +128,16 @@
 				<h3>Lime</h3>
 			</a>
 		</div>
-		<div class="row col-sm-2" id="player2_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;height:90%" ondrop="drop2(event)" ondragover="allowDrop(event)">
+		<div class="row col-sm-2" id="player2_selection" style="display:none;border-style:solid;border-color:black;border-width:medium;width:20%;height:90%" ondrop="drop2(event)" ondragover="allowDrop(event)">
 			<p style="color:black" id="player2_selection_text"></p>
 		</div>
 		
 		<div id="question_container" class="row" style="display:none">
-			<h2 id="current_question" class="row">CURRENT QUESTION</h2>
+			<a id="question_color_ball" class="link-round whiteoutline box-shadow text-center" style="display:none;height:100px;width:100px;cursor:none"></a>
+			<h2 id="current_question" class="row"></h2>
 			<div id="ans_buttons">
-				<a id="yes" onclick="ans_clicked(1)" class="link-round color-green whiteoutline box-shadow text-center "><h3>Yes</h3></a>
-				<a id="no" onclick="ans_clicked(0)" class="link-round color-red whiteoutline box-shadow text-center "><h3>No</h3></a>
+				<a id="yes" onclick="ans_clicked(1)" class="link-round color-green whiteoutline box-shadow text-center" style="width:200px;height:200px"><h3>Correct</h3></a>
+				<a id="no" onclick="ans_clicked(0)" class="link-round color-red whiteoutline box-shadow text-center" style="width:200px;height:200px"><h3>Wrong</h3></a>
 			</div>
 		</div>
 	</div>
@@ -149,22 +155,23 @@
 		var player1, player2;		//Players' names
 		var player1_colors = [];	//Player1 picked colors
 		var player2_colors = [];	//Player2 picked colors
-		var _dragged = "";			//global variable for dragged item
+		var _dragged = "";			//global variable for dragged item, eg. "blue", "red", etc.
 		var player_turn = 1;		
 		var player1_points = 0;
 		var player2_points = 0;
-		
+		var prev_color = "";
+		say("First. Let me know your names.")
 		var question_refs = {	
-								"red":"What is the other players occupation?",
-								"green":"Which plave the other player like to travel?",
-								"blue":"What is the other player's educational background",
-								"orange":"What does the other player enjoy the most in his/her job?",
-								"purple":"What is the other player's worst fear in life?",
-								"pink":"What is the favorite food of the other player?",
-								"yellow":"Where does the other player work?",
-								"brown":"What is the other player's hobby?",
-								"olive":"Where is the other player from?",
-								"lime":"What does the other player first do if they win a lottery?"
+								"red":["What is ", "'s occupation?"],
+								"green":["Which place ", " likes to travel?"],
+								"blue":["What is ", "'s educational background?"],
+								"orange":["What does ", " enjoy the most in his/her job?"],
+								"purple":["What is ", "'s worst fear in life?"],
+								"pink":["What is the favorite food of ", "?"],
+								"yellow":["Where does ", " work?"],
+								"brown":["What is ", "'s hobby?"],
+								"olive":["Where is ", " from?"],
+								"lime":["What does ", " first do if they win a lottery?"]
 							}
 		
 		function start_clicked(){
@@ -184,30 +191,30 @@
 		}
 		
 		function display_instructions(){
-			document.getElementById("player_container").style = "display:none";
-			document.getElementById("statement_container").style = "display:block";
-			document.getElementById("instruction").innerText  = player1 + " please start completing these statements: ";
+			document.getElementById("player_container").style.display = "none";
+			document.getElementById("statement_container").style.display = "block";
+			document.getElementById("instruction").innerText  = player1 + ", please start completing these statements: ";
 			//PEPPER SPEAKS AND AFTER HE HAS COMPLETED HIS STATEMENT SENDS A SIGNAL THAT STARTS THE TIMER
-			say(str(player1) + " please start completing these statements: ");
-			startTimer(10, document.getElementById("timer"));
+			say(player1 + ". please start completing these statements: ");
+			startTimer(120, document.getElementById("timer"));
 		}
 		
 		function startTimer(duration, display) {
 			var timer = duration, minutes, seconds;
-			document.getElementById("timer").style = "display:block";
+			document.getElementById("timer").style.display = "block";
 			console.log("displaying timer");
 			timer_ = setInterval(function () {
 				++statement_timer;
-				if(statement_timer == 11){
-					say("Time is up. Next, " + player2 + " please start completing these statements: ");
+				if(statement_timer == 10){
+					say("Time is up.");
 					timer = duration, minutes, seconds;
-					document.getElementById("instruction").innerText  = player2 + " please start completing these statements: ";
-					say(str(player2) + " please start completing these statements: ");
+					document.getElementById("instruction").innerText  = player2 + ", please start completing these statements: ";
+					say(player2 + ". your turn to complete these statements: ");
 				}
-				if(statement_timer == 21){
+				if(statement_timer == 20){
 					colorPick();
 				}
-				minutes = parseInt(timer / 60, 10)
+				minutes = parseInt(timer / 60, 10);
 				seconds = parseInt(timer % 60, 10);
 
 				minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -234,20 +241,16 @@
 			document.getElementById("pick_instruction").style.display = "block";
 			document.getElementById("color_btns").style.display = "block";
 
-			document.getElementById("skip_btn").style.display = "none";
-			document.getElementById("player1_selection").style = "display:block;border-style:solid;border-color:black;border-width:medium;height:600px";
-			document.getElementById("player2_selection").style = "display:block;border-style:solid;border-color:black;border-width:medium;height:600px";
+			//document.getElementById("skip_btn").style.display = "none";
+			document.getElementById("player1_selection").style.display = "block";
+			document.getElementById("player1_selection").style = "border-style:solid;border-color:black;border-width:medium;height:600px";
+			document.getElementById("player2_selection").style.display = "block";
+			document.getElementById("player2_selection").style = "border-style:solid;border-color:black;border-width:medium;height:600px";
 			document.getElementById("player1_selection_text").innerText = player1;
 			document.getElementById("player2_selection_text").innerText = player2;
 		}
 		
-		/*session.service("ALMemory").then(function (ALMemory) {
-			ALMemory.subscriber("colorgame/starttimer").then(function (subscriber) {
-				subscriber.signal.connect(function (state) {
-					startTimer(10, document.getElementById("timer"));
-				});
-			});
-		})*/
+
 		function allowDrop(ev) {
 			ev.preventDefault();
 		}
@@ -264,10 +267,9 @@
 				document.getElementById("player1_selection").ondrop = function(){return false;};
 			}
 			else{
-				say(_dragged);
 				player1_colors.push(_dragged);
-				stuff(ev);
 				console.log("Dropping to player 1");
+				stuff(ev);
 			}
 		}
 		function drop2(ev) {
@@ -278,14 +280,14 @@
 				document.getElementById("player2_selection").ondrop = function(){return false;};
 			}
 			else{
-				say(_dragged);
 				player2_colors.push(_dragged);
-				stuff(ev);
 				console.log("Dropping to player 2");
+				stuff(ev);
 			}	
 		}
 		
 		function stuff(ev){
+			say(_dragged);
 			console.log("Player 1 colors are now:", player1_colors);
 			console.log("Player 2 colors are now:", player2_colors);
 			var data = ev.dataTransfer.getData("text");
@@ -306,52 +308,78 @@
 			document.getElementById("player2_selection").style.display = "none";
 			document.getElementById("color_btns").style.display = "none";
 			document.getElementById("question_container").style.display = "block";
-			document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
-			say(player1_colors[0] + " " + question_refs[player1_colors[0]]);
+			question = question_refs[player1_colors[0]][0] + player1 + question_refs[player1_colors[0]][1];
+			document.getElementById("current_question").innerText = "Question to " + player2 + ":\n" + question;
+			say(player1_colors[0] + ". " + question);
+			document.getElementById("question_color_ball").style.display = "block";
+			document.getElementById("question_color_ball").classList.add("color-"+player1_colors[0]);
+			prev_color = "color-"+player1_colors[0];
+			player1_colors.shift();
 		}
 		
 		function ans_clicked(ans){
-			say_ans(ans);
+			console.log("Player 1 color: "+ player1_colors);
+			console.log("Player 2 color: "+ player2_colors);
+			
+			if(player1_colors.length == 0 && player2_colors.length == 0){	
+				end();
+				return;
+			}
+			say(ans);
 			if(player_turn == 1){
 				player2_points += ans;
 				player_turn = 2;
-				player1_colors.shift();
-				document.getElementById("current_question").innerText = question_refs[player2_colors[0]];
-				say(player2_colors[0] + " " + question_refs[player2_colors[0]]);
+				question = question_refs[player2_colors[0]][0] + player2 + question_refs[player2_colors[0]][1];
+				document.getElementById("current_question").innerText = "Question to " + player1 + ":\n" + question;
+				document.getElementById("question_color_ball").classList.remove(prev_color);
+				document.getElementById("question_color_ball").classList.add("color-"+player2_colors[0]);
+				prev_color = "color-"+player2_colors[0];
+				say(player2_colors[0] + ". " + question);
+				player2_colors.shift();
 			}
 			else if(player_turn == 2){
 				player1_points += ans;
 				player_turn = 1
-				player2_colors.shift();
-				document.getElementById("current_question").innerText = question_refs[player1_colors[0]];
-				say(player1_colors[0] + " " + question_refs[player1_colors[0]]);
-			}
-			if(player2_colors.length == 0){
-				console.log("END GAME");
-				document.getElementById("current_question").innerText = player1 + " got " + player1_points + " points!\n" + player2 + " got " + player2_points + " points!\n\nEnjoy the event!";
-				document.getElementById("ans_buttons").style.display = "none";
+				question = question_refs[player1_colors[0]][0] + player1 + question_refs[player1_colors[0]][1];
+				document.getElementById("current_question").innerText = "Question to " + player2 + ":\n" + question;
+				document.getElementById("question_color_ball").classList.remove(prev_color);
+				document.getElementById("question_color_ball").classList.add("color-"+player1_colors[0]);
+				prev_color = "color-"+player1_colors[0];
+				say(player1_colors[0] + ". " + question_refs[player1_colors[0]]);
+				player1_colors.shift();
 			}
 			
+			
+		}
+		
+		function end(){
+			console.log("END GAME");
+			document.getElementById("current_question").innerText = player1 + " got " + player1_points + " points!\n" + player2 + " got " + player2_points + " points!\n\nEnjoy the event!";
+			document.getElementById("ans_buttons").style.display = "none";
+			document.getElementById("question_color_ball").style.display = "none";
+			say("It was nice to play with you. I hope you learned something new about your friend here. Enjoy the event!");
 		}
 		
 		function say_ans(ans){
 			if(ans == 1){
-				say("Correct");
+				//say("Correct");
 			}
 			else if(ans == 0){
-				say("Wrong");
+				//say("Wrong");
 			}
 		}
 		
 		function say(text){
 			try{
 				session.service('ALMemory').done(function(ALMemory) {
-				ALMemory.raiseEvent("colorgame/say", text);
+					ALMemory.raiseEvent("colorgame/say_color", text);
+				});
+			}
 			catch(err){
 				console.log("Not using pepper. No QiSession stuff");
 				console.log("Attempting to say:", text);
 			}
-		});
+		}
 		
 	</script>
 </body>
