@@ -57,13 +57,13 @@
 			<h1 id="title" class="rainbow">Color Game</h1>
 		</div>
 		<div class="row" id="player_container">
-			<div class="row" style="color:black">First let me know your names by inserting your names on the text fields below</div>
+			<div class="row" style="color:black"><h2>First let me know your names by inserting your names on the text fields below</h2></div>
 			<div class="col-sm-4">
-				<a>Player 1</a><br>
+				<a><h2>Player 1</h2></a><br>
 				<input type="text" id="player1"/>
 			</div>
 			<div class="col-sm-15">
-				<a>Player 2</a><br>
+				<a><h2>Player 2</h2></a><br>
 				<input type="text" id="player2"/>
 			</div>
 			<div class="row">
@@ -73,20 +73,26 @@
 		<div class="row" id="statement_container" style="display:none">
 			<h2 id="instruction"></h2>
 			<div style="width:300px"></div>
-			<div class="row" style="align:center">
-				<ul id="statements" style="text-align:left">
-					<li>My occupation is...</li>
-					<li>I work at...</li>
-					<li>I am from...</li>
-					<li>My favorite food is...</li>
-					<li>What I enjoy most about my job is...</li>
-					<li>My hobby is...</li>
-					<li>If I win a lottery, the first thing I do is...</li>
-					<li>My educational background is...</li>
-					<li>My worst fear in life is...</li>
-					<li>I like to travel to...</li>
-				</ul>
-				<div class="col-sm-8" id="timer" style="display:none"></div>
+			<div class="row">
+				<div id="statements" class="col-sm-6">
+					<ul id="statements" style="text-align:left">
+						<li>My occupation is...</li>
+						<li>I work at...</li>
+						<li>I am from...</li>
+						<li>My favorite food is...</li>
+						<li>What I enjoy most about my job is...</li>
+						<li>My hobby is...</li>
+						<li>If I win a lottery, the first thing I do is...</li>
+						<li>My educational background is...</li>
+						<li>My worst fear in life is...</li>
+						<li>I like to travel to...</li>
+					</ul>
+				</div>
+				<div id="timer" style="display:none" class="col-sm-6"></div>
+				<div class="col-sm-6" id="next_btn" style="display:none"> 
+					<button onclick="next_pressed()">Next</input>
+				</div>
+				
 			</div>
 			
 		</div>
@@ -133,12 +139,15 @@
 		</div>
 		
 		<div id="question_container" class="row" style="display:none">
-			<a id="question_color_ball" class="link-round whiteoutline box-shadow text-center" style="display:none;height:100px;width:100px;cursor:none"></a>
 			<h2 id="current_question" class="row"></h2>
+			<h2 id="winner" class="row" style="display:none"></h2>
 			<div id="ans_buttons">
 				<a id="yes" onclick="ans_clicked(1)" class="link-round color-green whiteoutline box-shadow text-center" style="width:200px;height:200px"><h3>Correct</h3></a>
 				<a id="no" onclick="ans_clicked(0)" class="link-round color-red whiteoutline box-shadow text-center" style="width:200px;height:200px"><h3>Wrong</h3></a>
 			</div>
+		</div>
+		<div class="row">
+			<button id="restart_btn" onclick="restart_game()" style="display:none;margin-left:auto;margin-right:auto">Restart<i class="fa fa-refresh"></i></button>
 		</div>
 	</div>
 	
@@ -173,6 +182,18 @@
 								"olive":["Where is ", " from?"],
 								"lime":["What does ", " first do if they win a lottery?"]
 							}
+		var rgbs = {
+						"red":[255,0,0],
+						"green":[0,255,0],
+						"blue":[0,128,255],
+						"orange":[255,128,0],
+						"purple":[170,0,255],
+						"pink":[255,0,255],
+						"yellow":[255,255,0],
+						"brown":[130,90,44],
+						"olive":[109,135,100],
+						"lime":[164,196,0]
+					}
 		
 		function start_clicked(){
 			player1 = document.getElementById("player1").value;
@@ -194,9 +215,18 @@
 			document.getElementById("player_container").style.display = "none";
 			document.getElementById("statement_container").style.display = "block";
 			document.getElementById("instruction").innerText  = player1 + ", please start completing these statements: ";
-			//PEPPER SPEAKS AND AFTER HE HAS COMPLETED HIS STATEMENT SENDS A SIGNAL THAT STARTS THE TIMER
-			say(player1 + ". please start completing these statements: ");
+			say(player1 + ". please start completing these statements. You have two minutes time.");
+			document.getElementById("next_btn").style.display = "block";
 			startTimer(120, document.getElementById("timer"));
+		}
+		
+		function next_pressed(){
+			if(statement_timer < 119){
+				statement_timer = 119;
+			}
+			if(statement_timer < 239 && statement_timer > 119){
+				colorPick();
+			}
 		}
 		
 		function startTimer(duration, display) {
@@ -205,13 +235,13 @@
 			console.log("displaying timer");
 			timer_ = setInterval(function () {
 				++statement_timer;
-				if(statement_timer == 10){
-					say("Time is up.");
+				if(statement_timer == 120){
+					say("Alright.");
 					timer = duration, minutes, seconds;
 					document.getElementById("instruction").innerText  = player2 + ", please start completing these statements: ";
-					say(player2 + ". your turn to complete these statements: ");
+					say(player2 + ". your turn to complete these statements. Two minutes.");
 				}
-				if(statement_timer == 20){
+				if(statement_timer == 240){
 					colorPick();
 				}
 				minutes = parseInt(timer / 60, 10);
@@ -235,13 +265,13 @@
 		}
 		
 		function colorPick(){
+			document.getElementById("next_btn").style.display = "none";
 			say("Next you are to pick 5 of the colors each. Select them by dragging and dropping");
 			stopTimer(document.getElementById("timer"));
 			document.getElementById("statement_container").style.display = "none";
 			document.getElementById("pick_instruction").style.display = "block";
 			document.getElementById("color_btns").style.display = "block";
 
-			//document.getElementById("skip_btn").style.display = "none";
 			document.getElementById("player1_selection").style.display = "block";
 			document.getElementById("player1_selection").style = "border-style:solid;border-color:black;border-width:medium;height:600px";
 			document.getElementById("player2_selection").style.display = "block";
@@ -288,6 +318,7 @@
 		
 		function stuff(ev){
 			say(_dragged);
+			eyes(_dragged);
 			console.log("Player 1 colors are now:", player1_colors);
 			console.log("Player 2 colors are now:", player2_colors);
 			var data = ev.dataTransfer.getData("text");
@@ -310,17 +341,13 @@
 			document.getElementById("question_container").style.display = "block";
 			question = question_refs[player1_colors[0]][0] + player1 + question_refs[player1_colors[0]][1];
 			document.getElementById("current_question").innerText = "Question to " + player2 + ":\n" + question;
-			say(player1_colors[0] + ". " + question);
-			document.getElementById("question_color_ball").style.display = "block";
-			document.getElementById("question_color_ball").classList.add("color-"+player1_colors[0]);
+			say(question);
+			eyes(player1_colors[0]);
 			prev_color = "color-"+player1_colors[0];
 			player1_colors.shift();
 		}
 		
-		function ans_clicked(ans){
-			console.log("Player 1 color: "+ player1_colors);
-			console.log("Player 2 color: "+ player2_colors);
-			
+		function ans_clicked(ans){			
 			if(player1_colors.length == 0 && player2_colors.length == 0){	
 				end();
 				return;
@@ -331,10 +358,9 @@
 				player_turn = 2;
 				question = question_refs[player2_colors[0]][0] + player2 + question_refs[player2_colors[0]][1];
 				document.getElementById("current_question").innerText = "Question to " + player1 + ":\n" + question;
-				document.getElementById("question_color_ball").classList.remove(prev_color);
-				document.getElementById("question_color_ball").classList.add("color-"+player2_colors[0]);
 				prev_color = "color-"+player2_colors[0];
-				say(player2_colors[0] + ". " + question);
+				say(question);
+				eyes(player2_colors[0]);
 				player2_colors.shift();
 			}
 			else if(player_turn == 2){
@@ -342,32 +368,40 @@
 				player_turn = 1
 				question = question_refs[player1_colors[0]][0] + player1 + question_refs[player1_colors[0]][1];
 				document.getElementById("current_question").innerText = "Question to " + player2 + ":\n" + question;
-				document.getElementById("question_color_ball").classList.remove(prev_color);
-				document.getElementById("question_color_ball").classList.add("color-"+player1_colors[0]);
 				prev_color = "color-"+player1_colors[0];
-				say(player1_colors[0] + ". " + question_refs[player1_colors[0]]);
+				say(question);
+				eyes(player1_colors[0]);
 				player1_colors.shift();
 			}
-			
-			
+				
 		}
 		
 		function end(){
 			console.log("END GAME");
-			document.getElementById("current_question").innerText = player1 + " got " + player1_points + " points!\n" + player2 + " got " + player2_points + " points!\n\nEnjoy the event!";
+			document.getElementById("current_question").innerText = player1 + " got " + player1_points + " right!\n" + player2 + " got " + player2_points + " right!";
 			document.getElementById("ans_buttons").style.display = "none";
-			document.getElementById("question_color_ball").style.display = "none";
+			document.getElementById("winner").style.display = "block";
+			random_eyes();
+			if(player1_points > player2_points){
+				document.getElementById("winner").innerText = player1 + " is the winner!";
+				say("And the winner is.");
+				say("");
+				say(player1);
+			}
+			else if(player1_points < player2_points){
+				document.getElementById("winner").innerText = player2 + " is the winner!";
+				say("And the winner is.");
+				say("");
+				say(player1);
+			}
+			else if(player1_points == player2_points){
+				document.getElementById("winner").innerText = "You tied!";
+			}
+			document.getElementById("winner").innerText += "\n\nEnjoy the event!";
 			say("It was nice to play with you. I hope you learned something new about your friend here. Enjoy the event!");
+			document.getElementById("restart_btn").style.display = "block";
 		}
 		
-		function say_ans(ans){
-			if(ans == 1){
-				//say("Correct");
-			}
-			else if(ans == 0){
-				//say("Wrong");
-			}
-		}
 		
 		function say(text){
 			try{
@@ -378,6 +412,47 @@
 			catch(err){
 				console.log("Not using pepper. No QiSession stuff");
 				console.log("Attempting to say:", text);
+			}
+		}
+		
+		function eyes(color){
+			console.log(color);
+			rgb = rgbs[color];
+			if(rgb == null){
+				return;
+			}
+			try{
+				session.service('ALMemory').done(function(ALMemory) {
+					ALMemory.raiseEvent("colorgame/eye_color", rgb);
+				});
+			}
+			catch(err){
+				console.log("Not using pepper. No QiSession stuff");
+				console.log("Attempting show color:", rgb);
+			}
+		}
+		
+		function random_eyes(){
+			try{
+				session.service('ALMemory').done(function(ALMemory) {
+					ALMemory.raiseEvent("colorgame/random_eyes", 1);
+				});
+			}
+			catch(err){
+				console.log("Not using pepper. No QiSession stuff");
+				console.log("Attempting to random eyes");
+			}
+		}
+		
+		function restart_game(){
+			try{
+				session.service('ALMemory').done(function(ALMemory) {
+					ALMemory.raiseEvent("colorgame/restart", 1);
+				});
+			}
+			catch(err){
+				console.log("Not using pepper. No QiSession stuff");
+				window.location.href = "colorgame.html";
 			}
 		}
 		

@@ -38,6 +38,8 @@
         <File name="stage1" src="archive/stage1.html" />
         <File name="player" src="html/player.html" />
         <File name="DragDropTouch" src="html/site/js/DragDropTouch.js" />
+        <File name="icon_orig" src="icon_orig.jpg" />
+        <File name="icon" src="icon.png" />
     </Resources>
     <Topics>
         <Topic name="ExampleDialog_enu" src="behavior_1/ExampleDialog/ExampleDialog_enu.top" topicName="ExampleDialog" language="en_US" nuance="enu" />
